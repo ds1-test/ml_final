@@ -1,0 +1,60 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures,StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.pipeline import make_pipeline
+
+boston_df=pd.read_csv("C:/Users/KEERTHAN BM/Downloads/boston_housing.csv")
+print("Boston csv columns:",boston_df.columns)
+
+x_boston=boston_df[['RM']].values
+y_boston=boston_df['DIS'].values  #use MEDV
+
+x_train,x_test,y_train,y_test=train_test_split(x_boston,y_boston,test_size=0.2,random_state=42)
+
+model=LinearRegression()
+model.fit(x_train,y_train)
+y_pred=model.predict(x_test)
+
+plt.figure(figsize=(10,8))
+plt.scatter(x_test,y_test,color='blue',label='Actual')
+plt.plot(x_test,y_pred,color='red',linewidth=2,label='Predicted')
+plt.xlabel('Avg no of Rooms (RM)')
+plt.ylabel('DIS')  #use MEDV
+plt.title('Linear Regression on Boston Housing Dataset')
+plt.legend()
+plt.show()
+
+print(f'Mean Squared Error (Linear Regression) : {mean_squared_error(y_test,y_pred)}')
+
+auto_df=pd.read_csv("C:/Users/KEERTHAN BM/Downloads/auto-mpg.csv",na_values='?')
+print('\n auto mpg columns:',auto_df.columns)
+auto_df=auto_df.dropna()
+x_auto=auto_df[['horsepower']].astype(float).values
+y_auto=auto_df['mpg'].values
+
+x_train,x_test,y_train,y_test=train_test_split(x_auto,y_auto,test_size=0.2,random_state=42)
+
+poly_model=make_pipeline(
+    PolynomialFeatures(degree=3),
+    StandardScaler(),
+    LinearRegression()
+)
+poly_model.fit(x_train,y_train)
+y_poly_pred=poly_model.predict(x_test)
+
+x_test_sorted,y_poly_pred_sorted=zip(*sorted(zip(x_test.flatten(),y_poly_pred)))
+
+plt.figure(figsize=(10,8))
+plt.scatter(x_test,y_test,color='blue',label='Actual')
+plt.plot(x_test_sorted,y_poly_pred_sorted,color='red',linewidth=2,label='Predicted')
+plt.xlabel('HorsePower')
+plt.ylabel('MPG') 
+plt.title('Polynomial Regression on auto mpg Dataset')
+plt.legend()
+plt.show()
+
+print(f'Mean Squared Error (Polynomial Regression) : {mean_squared_error(y_test,y_poly_pred)}')
